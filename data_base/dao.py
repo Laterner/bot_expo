@@ -154,7 +154,7 @@ async def get_all_users(session) -> Optional[Dict[str, Any]]:
 
         note_list = [
             {
-                'id': user.id,
+                'member_id': user.member_id,
                 'full_name': user.full_name,
                 'score': user.score,
             } for user in users

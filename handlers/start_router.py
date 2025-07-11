@@ -67,7 +67,7 @@ async def start_faq(message: Message, state: FSMContext):
     str_val = ""
     for user in users:
         # print("user::::::::", user)
-        str_val += f"{user['id']} | {user['full_name']} | {user['score']} \n"
+        str_val += f"{user['member_id']} | {user['full_name']} | {user['score']} \n"
     await message.answer('10 лучших частников: \n' + str_val,
                         reply_markup=main_register2())   
 
