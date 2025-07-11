@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
-from data_base.dao import set_user, get_all_users
+from data_base.dao import set_user, get_all_users, delete_all_users
 from keyboards.reply_other_kb import main_kb, main_register, main_register2
 from utils.utils import get_content_info, send_message_user
 from create_bot import bot
@@ -73,9 +73,10 @@ async def start_faq(message: Message, state: FSMContext):
 
 
 
-@start_router.message(F.text == '❌ Остановить сценарий')
+@start_router.message(F.text == 'DeleteDataBase')
 async def stop_fsm(message: Message, state: FSMContext):
     await state.clear()
+    await delete_all_users()
     await message.answer(f"Сценарий остановлен. Для выбора действия воспользуйся клавиатурой ниже",
                         reply_markup=main_register2())
 

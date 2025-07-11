@@ -4,7 +4,7 @@ from .models import User, Note
 from sqlalchemy import select
 from typing import List, Dict, Any, Optional
 from sqlalchemy.exc import SQLAlchemyError
-
+import random
 
 @connection
 async def set_user(session, tg_id: int, username: str, full_name: str) -> Optional[User]:
@@ -12,7 +12,7 @@ async def set_user(session, tg_id: int, username: str, full_name: str) -> Option
         print(tg_id)
         user = await session.scalar(select(User).filter_by(id=tg_id))
 
-        member_id = 10
+        member_id = random.randint(1, 10000)
         if not user:
             new_user = User(id=tg_id, username=username, full_name=full_name, member_id=member_id, score=0)
             session.add(new_user)
@@ -163,4 +163,13 @@ async def get_all_users(session) -> Optional[Dict[str, Any]]:
         return note_list
     except SQLAlchemyError as e:
         logger.error(f"Ошибка при получении заметок: {e}")
+        return []
+
+@connection
+async def delete_all_users(session) -> Optional[Dict[str, Any]]:
+    try:
+        # User.query.delete()
+        pass
+    except SQLAlchemyError as e:
+        logger.error(f"Ошибка при удалении записей: {e}")
         return []
