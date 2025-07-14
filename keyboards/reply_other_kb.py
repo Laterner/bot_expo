@@ -14,7 +14,7 @@ def main_register():
 
 def main_register2():
     kb_list = [
-        [KeyboardButton(text="Главное меню")],
+        # [KeyboardButton(text="Главное меню")],
         [KeyboardButton(text="Карта и расписание")],
         [KeyboardButton(text="Таблица лидеров")],
         [KeyboardButton(text="FAQ")]

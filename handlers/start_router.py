@@ -1,7 +1,8 @@
-from aiogram import Router, F
+from aiogram import Router, F, Dispatcher, types
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import Message, CallbackQuery, FSInputFile
 from data_base.dao import set_user, get_all_users, delete_all_users
 from keyboards.reply_other_kb import main_kb, main_register, main_register2
 from utils.utils import get_content_info, send_message_user
@@ -10,21 +11,44 @@ from create_bot import bot
 
 start_router = Router()
 
+class Form(StatesGroup):
+    name = State()  # Состояние для ввода имени
 
 # Хендлер команды /start и кнопки "🏠 Главное меню"
 @start_router.message(F.text == 'Главное меню')
 @start_router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
-    user = await set_user(tg_id=message.from_user.id,
-                          username=message.from_user.username,
-                          full_name=message.from_user.full_name)
+    user = None # await cheak_user(tg_id=message.from_user.id,
+                        #   username=message.from_user.username,
+                        #   full_name=message.from_user.full_name)
     greeting = f"Добро пожаловать, {message.from_user.full_name}! Выбери необходимое действие"
     if user is None:
-        greeting = f"Приветствуем, новый пользователь! Выбери необходимое действие"
-        await message.answer(greeting, reply_markup=main_register())
+        greeting = f"Приветствуем, новый пользователь! Введите Ваше полное имя"
+        
+        await state.set_state(Form.name)
+        
+        await message.answer(greeting, reply_markup=None)
     else:
         await message.answer(greeting, reply_markup=main_register2())
+
+# Обработчик для сохранения имени
+@start_router.message(Form.name)
+async def process_name(message: Message, state: FSMContext):
+    # Сохраняем имя в состоянии FSM
+    await state.update_data(name=message.text)
+    
+    # Получаем данные из состояния
+    data = await state.get_data()
+    name = data.get("name", "неизвестно")
+    user = await set_user(tg_id=message.from_user.id,
+                          username=message.from_user.username,
+                          full_name=name)
+    print('user::', user)
+    await message.answer(f"Спасибо, {name}! Ваше имя сохранено.")
+    await state.clear()  # Очищаем состояние
+
+
 
 
 
@@ -49,13 +73,24 @@ async def start_register(message: Message, state: FSMContext):
 @start_router.message(F.text == 'Карта и расписание')
 async def start_map(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer('*Здесь будет карта* \n12:30 – приветствие \n13:00 – кейтеринг \n13:20 – конкурсы ',
-                        reply_markup=main_register2())
+    text = "12:30 – приветствие \n13:00 – кейтеринг \n13:20 – конкурсы"
+    
+    # Путь к файлу относительно корня проекта
+    photo_path = "map.jpg"
+    
+    # Создаем объект файла
+    photo = FSInputFile(photo_path)
+    
+    await message.answer_photo(
+        photo=photo,
+        caption=text,
+        reply_markup=main_register2()
+    )
 
 @start_router.message(F.text == 'FAQ')
 async def start_faq(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer('Все вопросы можете задать сюда: @laterner',
+    await message.answer('Все вопросы можете задать сюда: @Ivangogis',
                         reply_markup=main_register2())   
 
 
@@ -67,7 +102,7 @@ async def start_faq(message: Message, state: FSMContext):
     str_val = ""
     for user in users:
         # print("user::::::::", user)
-        str_val += f"{user['member_id']} | {user['full_name']} | {user['score']} \n"
+        str_val += f"{user['full_name']} {user['member_id']} {user['score']} \n"
     await message.answer('10 лучших частников: \n' + str_val,
                         reply_markup=main_register2())   
 

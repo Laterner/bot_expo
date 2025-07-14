@@ -6,13 +6,14 @@ from typing import List, Dict, Any, Optional
 from sqlalchemy.exc import SQLAlchemyError
 import random
 
+
 @connection
 async def set_user(session, tg_id: int, username: str, full_name: str) -> Optional[User]:
     try:
         print(tg_id)
         user = await session.scalar(select(User).filter_by(id=tg_id))
 
-        member_id = random.randint(1, 10000)
+        member_id = random.randint(1000, 10000)
         if not user:
             new_user = User(id=tg_id, username=username, full_name=full_name, member_id=member_id, score=0)
             session.add(new_user)
@@ -154,6 +155,7 @@ async def get_all_users(session) -> Optional[Dict[str, Any]]:
 
         note_list = [
             {
+                'id': user.id,
                 'member_id': user.member_id,
                 'full_name': user.full_name,
                 'score': user.score,

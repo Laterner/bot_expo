@@ -8,6 +8,10 @@ from aiogram.types import BotCommand, BotCommandScopeDefault
 
 from handlers.start_router import start_router
 
+from data_base.dao import get_all_users
+from aiohttp import web
+import aiohttp_cors
+
 
 # Функция, которая настроит командное меню (дефолтное для всех пользователей)
 async def set_commands():
@@ -48,10 +52,51 @@ async def main():
 
     # запуск бота в режиме long polling при запуске бот очищает все обновления, которые были за его моменты бездействия
     try:
-        await bot.delete_webhook(drop_pending_updates=True)
-        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+        # await bot.delete_webhook(drop_pending_updates=True)
+        # await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+        
+        await asyncio.gather(
+            dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types()),
+            start_http_server()
+        )
+        
     finally:
         await bot.session.close()
+
+
+
+
+async def handle_admin_message(request):
+    data = await request.json()
+    all_users = await get_all_users()
+    text = data.get("text")
+    
+    if not text:
+        return web.json_response({"status": "error", "message": "text required"})
+    
+    for user in all_users:
+        await bot.send_message(user['id'], f"🔔 Сообщение от админа:\n{text}")
+    return web.json_response({"status": "ok"})
+
+async def start_http_server():
+    app = web.Application()
+    app.router.add_post("/admin/send", handle_admin_message)
+    runner = web.AppRunner(app)
+    
+    cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*"
+        )
+    })
+    for route in list(app.router.routes()):
+        cors.add(route)
+        
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", 8080)
+    await site.start()
+
 
 
 if __name__ == "__main__":
