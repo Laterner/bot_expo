@@ -142,6 +142,13 @@ async def delete_note_by_id(session, note_id: int) -> Optional[Note]:
         return None
     
     
+@connection
+async def get_member_id_by_id(session, tg_id):
+    try:
+        user = await session.scalar(select(User).filter_by(id=tg_id))
+        return user
+    except:
+        return "Произошла ошибка"
     
 @connection
 async def get_all_users(session) -> Optional[Dict[str, Any]]:

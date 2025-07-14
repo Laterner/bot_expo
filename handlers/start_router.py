@@ -3,8 +3,8 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile
-from data_base.dao import set_user, get_all_users, delete_all_users
-from keyboards.reply_other_kb import main_kb, main_register, main_register2
+from data_base.dao import set_user, get_all_users, get_member_id_by_id
+from keyboards.reply_other_kb import main_kb, quest_kb, main_register2
 from utils.utils import get_content_info, send_message_user
 from create_bot import bot
 
@@ -15,7 +15,6 @@ class Form(StatesGroup):
     name = State()  # Состояние для ввода имени
 
 # Хендлер команды /start и кнопки "🏠 Главное меню"
-@start_router.message(F.text == 'Главное меню')
 @start_router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
@@ -31,6 +30,20 @@ async def cmd_start(message: Message, state: FSMContext):
         await message.answer(greeting, reply_markup=None)
     else:
         await message.answer(greeting, reply_markup=main_register2())
+
+@start_router.message(F.text == 'Главное меню')
+async def main_menu(message: Message, state: FSMContext):
+    await state.clear()
+    user = await get_member_id_by_id(message.from_user.id)
+    print(f'user{message.from_user.id}::', user)
+    
+    try:
+        await message.answer(f'Ваш id:{user['member_id']} \nВаш счёт:{user['score']}',
+                            reply_markup=main_register2())
+    except Exception as e:
+        print('total error::', e)
+        await message.answer(f'Выберите необходимое действие.',
+                            reply_markup=main_register2())
 
 # Обработчик для сохранения имени
 @start_router.message(Form.name)
@@ -66,7 +79,7 @@ async def start_register(message: Message, state: FSMContext):
             user_id=message.from_user.id, 
             kb=main_register2()
         )
-        await message.answer('Выберите необходимое действие.',
+        await message.answer('Ваш id:\nВыберите необходимое действие.',
                             reply_markup=main_register2())
 
 
@@ -111,11 +124,44 @@ async def start_faq(message: Message, state: FSMContext):
 @start_router.message(F.text == 'DeleteDataBase')
 async def stop_fsm(message: Message, state: FSMContext):
     await state.clear()
-    await delete_all_users()
+    # await delete_all_users()
     await message.answer(f"Сценарий остановлен. Для выбора действия воспользуйся клавиатурой ниже",
                         reply_markup=main_register2())
 
+@start_router.message(F.text == 'Квест')
+async def quest_0(message: Message, state: FSMContext):
+    await state.clear()
+    text = "12:30 – приветствие \n13:00 – кейтеринг \n13:20 – конкурсы"
+    
+    # Путь к файлу относительно корня проекта
+    photo_path = "map.jpg"
+    
+    # Создаем объект файла
+    photo = FSInputFile(photo_path)
+    
+    await message.answer(text, reply_markup=quest_kb())
 
+@start_router.message(F.text == 'Квест')
+async def quest_0(message: Message, state: FSMContext):
+    await state.clear()
+    text = "Это список квестов"
+    
+    await message.answer(text, reply_markup=quest_kb())
+
+@start_router.message(F.text == 'Квест 1')
+async def quest_1(message: Message, state: FSMContext):
+    await state.clear()
+    text = "Это описание квеста 1"
+    
+    await message.answer(text, reply_markup=quest_kb())
+
+@start_router.message(F.text == 'Квест 2')
+async def quest_2(message: Message, state: FSMContext):
+    await state.clear()
+    text = "Это описание квеста 2"
+    
+    await message.answer(text, reply_markup=quest_kb())
+    
 @start_router.callback_query(F.data == 'main_menu')
 async def main_menu_process(call: CallbackQuery, state: FSMContext):
     await state.clear()
