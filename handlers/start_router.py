@@ -1,4 +1,4 @@
-from aiogram import Router, F, Dispatcher, types
+from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -23,7 +23,7 @@ async def cmd_start(message: Message, state: FSMContext):
                         #   full_name=message.from_user.full_name)
     greeting = f"Добро пожаловать, {message.from_user.full_name}! Выбери необходимое действие"
     if user is None:
-        greeting = f"Приветствуем, новый пользователь! Введите Ваше полное имя"
+        greeting = f"Введите своё имя одним словом до 10 символов (так вы будите видны в таблице лидеров)"
         
         await state.set_state(Form.name)
         
@@ -38,7 +38,7 @@ async def main_menu(message: Message, state: FSMContext):
     print(f'user{message.from_user.id}::', user)
     
     try:
-        await message.answer(f'Ваш id:{user['member_id']} \nВаш счёт:{user['score']}',
+        await message.answer(f'Ваш id:{user['member_id']} \nВаш счёт:{user['score']} \nВоспользуйтесь навигацией внизу экрана',
                             reply_markup=main_register2())
     except Exception as e:
         print('total error::', e)
@@ -53,12 +53,12 @@ async def process_name(message: Message, state: FSMContext):
     
     # Получаем данные из состояния
     data = await state.get_data()
-    name = data.get("name", "неизвестно")
+    name = data.get("name", "Неизвестно")
     user = await set_user(tg_id=message.from_user.id,
                           username=message.from_user.username,
                           full_name=name)
     print('user::', user)
-    await message.answer(f"Спасибо, {name}! Ваше имя сохранено.")
+    await message.answer(f"\"{name}\", вот мы и познакомились! Вам присвоен уникальный ID {user['member_id']}, запомните его. ID нужен для начисления баллов в квесте. Давайте посмотрим мои возможности. Нажмите кнопку на \"Главное меню\"")
     await state.clear()  # Очищаем состояние
 
 
