@@ -1,5 +1,5 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
-
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 def main_register():
     kb_list = [
@@ -110,3 +110,31 @@ def stop_fsm():
         one_time_keyboard=True,
         input_field_placeholder="Для того чтоб остановить сценарий FSM нажми на одну из двух кнопок👇"
     )
+
+def ease_link_kb():
+    inline_kb_list = [
+        [InlineKeyboardButton(text="1", callback_data="stations_info")],
+        [InlineKeyboardButton(text="2", callback_data="stations_info")]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
+
+def create_qst_inline_kb(questions: dict) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    # Добавляем кнопки вопросов
+    for question_id, question_data in questions.items():
+        builder.row(
+            InlineKeyboardButton(
+                text=question_data.get('qst'),
+                callback_data=f'qst_{question_id}'
+            )
+        )
+    # Добавляем кнопку "На главную"
+    builder.row(
+        InlineKeyboardButton(
+            text='На главную',
+            callback_data='back_home'
+        )
+    )
+    # Настраиваем размер клавиатуры
+    builder.adjust(1)
+    return builder.as_markup()

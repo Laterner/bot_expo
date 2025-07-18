@@ -19,11 +19,11 @@ async def set_user(session, tg_id: int, username: str, full_name: str) -> Option
             session.add(new_user)
             await session.commit()
             logger.info(f"Зарегистрировал пользователя с ID {tg_id}!")
-            return tg_id
+            return member_id
         else:
             logger.info(f"Пользователь с ID {tg_id} найден!")
             # return user
-            return tg_id
+            return member_id
     except SQLAlchemyError as e:
         logger.error(f"Ошибка при добавлении пользователя: {e}")
         await session.rollback()
@@ -147,18 +147,15 @@ async def set_user(session, tg_id: int, username: str, full_name: str) -> Option
 @connection
 async def get_user_by_id(session, tg_id):
     try:
-        # result = await session.execute(select(User).filter_by(id=tg_id))
-        # stmt = select(User).where(User.id==tg_id)
-        stmt = await session.execute(select(User).where(User.id==tg_id))
-        user = stmt.scalar_one_or_none()  # Используем scalar_one_or_none вместо scalars().all()
+        result = await session.execute(select(User).where(User.id==tg_id))
+        user = result.scalar_one_or_none()  # Используем scalar_one_or_none вместо scalars().all()
         f = {
             'id': user.id,
             'member_id': user.member_id,
             'full_name': user.full_name,
             'score': user.score,
         }
-        print('stmt::', f)
-        # user = result.scalars().all()
+        
         return f
     except Exception as e:
         print('dao error:', e)
