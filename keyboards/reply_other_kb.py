@@ -38,6 +38,42 @@ def main_kb_2():
         input_field_placeholder="Воспользуйся меню👇"
     )
 
+def legend_kb():
+    kb_list = [
+        [KeyboardButton(text="Станции с описанием")],
+        [KeyboardButton(text="Главное меню")]
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=kb_list,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+        input_field_placeholder="Воспользуйся меню👇"
+    )
+    
+def statuion_kb():
+    kb_list = [
+        [KeyboardButton(text="Легенда и правила")],
+        [KeyboardButton(text="Главное меню")]
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=kb_list,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+        input_field_placeholder="Воспользуйся меню👇"
+    )
+
+def map_kb():
+    kb_list = [
+        [KeyboardButton(text="Запись на МАСТЕР-КЛАСС")],
+        [KeyboardButton(text="Главное меню")]
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=kb_list,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+        input_field_placeholder="Воспользуйся меню👇"
+    )
+    
 def quest_kb():
     kb_list = [
         [KeyboardButton(text="Легенда и правила")],
