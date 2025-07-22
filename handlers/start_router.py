@@ -118,7 +118,7 @@ async def start_legends(message: Message, state: FSMContext):
 def call_stations():
     # questions = {1: {'qst': 'Столица Италии?', 'answer': 'Рим'}}
     buttons = {}
-    with open('./temp_answers/stations', 'r', encoding='utf-8') as f:
+    with open('./temp_answers/stations_buttons', 'r', encoding='utf-8') as f:
         data = f.readlines()
     
     with open('./temp_answers/stations_info', 'r', encoding='utf-8') as f:
@@ -132,8 +132,8 @@ def call_stations():
 @start_router.message(F.text == 'Станции с описанием')
 async def start_stations(message: Message, state: FSMContext):
     await state.clear()
-    # text = call_answer_file('stations')
-    text = 'Выберете станцию про которую хотите узнать подробнее \n🎡 Станции можно посещать в любом порядке — как душе угодно! \n Участвуй и зарабатывай очки!'
+    text = call_answer_file('stations')
+    # text = 'Выберете станцию про которую хотите узнать подробнее \n🎡 Станции можно посещать в любом порядке — как душе угодно! \n Участвуй и зарабатывай очки!'
     questions = call_stations()
     
     await message.answer(text, reply_markup=create_qst_inline_kb(questions))
@@ -152,7 +152,18 @@ async def cmd_start(call: CallbackQuery):
                f'Выбери другой вопрос:'
     async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
         # await asyncio.sleep(2)
-        await call.message.answer(msg_text, reply_markup=create_qst_inline_kb(questions))
+        # Путь к файлу относительно корня проекта
+        photo_path = "map.png"
+        
+        # Создаем объект файла
+        photo = FSInputFile(photo_path)
+        
+        await call.message.answer_photo(
+            photo=photo,
+            caption=msg_text,
+            reply_markup=create_qst_inline_kb(questions)
+        )
+        # await call.message.answer(msg_text, reply_markup=create_qst_inline_kb(questions))
 
 
  
