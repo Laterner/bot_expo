@@ -178,7 +178,7 @@ async def start_table(message: Message, state: FSMContext):
     str_val = "15 лучших участников: \n"
     for user in users:
         # print("user::::::::", user)
-        str_val += f"{user['full_name']} | {user['member_id']} | {user['score']}\n"
+        str_val += f"{user['member_id']} | {user['full_name']} | {user['score']}\n"
     str_val += "Не нашли себя? Возможно, вы не в топ-15.\n\n"
     
     print('current_user::', current_user)
