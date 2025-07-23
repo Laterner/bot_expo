@@ -61,8 +61,6 @@ async def main():
         await bot.session.close()
 
 
-
-
 async def handle_admin_message(request):
     data = await request.json()
     all_users = await get_all_users()
@@ -74,6 +72,7 @@ async def handle_admin_message(request):
     for user in all_users:
         await bot.send_message(user['id'], f"🔔 Сообщение от админа:\n{text}")
     return web.json_response({"status": "ok"})
+
 
 async def start_http_server():
     app = web.Application()

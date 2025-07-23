@@ -1,9 +1,9 @@
-from flask import Flask, request, render_template
-from sqlalchemy import create_engine, Integer, String, BigInteger
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
+from flask import Flask, request, render_template, redirect, url_for, flash
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
 
 from data_base.models import User
-
+from data_base.base import connection
 
 app = Flask(__name__)
 
@@ -13,7 +13,7 @@ engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
 
 @app.route('/', methods=['GET', 'POST'])
-def index():
+async def index():
     message = None
     
     if request.method == 'POST':
@@ -50,9 +50,51 @@ def index():
     
     return render_template('index.html', message=message)
 
+
 @app.route('/admin')
 def admin_page():
     return render_template('send_message.html')
+
+@connection
+async def get_users(session):
+    result = await session.execute(select(User).order_by(User.id))
+    users = result.scalars().all()
+    session.close()
+    return users
+
+@connection
+async def get_user(session, user_id: int):
+    result = await session.execute(select(User).where(User.id==user_id))
+    user = result.scalar_one_or_none()
+    return user
+
+@connection
+async def save_user(session, request, user_id: int):
+    result = await session.execute(select(User).where(User.id==user_id))
+    user = result.scalar_one_or_none()
+    
+    user.full_name = request.form['full_name']
+    # user.score = int(request.form['score'])
+    await session.commit()
+    return user
+
+@app.route('/users')
+async def user_list():
+    users = await get_users()
+    return render_template('user_list.html', users=users)
+
+@app.route('/edit/<int:user_id>', methods=['GET', 'POST'])
+async def edit_user(user_id):
+    # session = Session()
+    user = await get_user(user_id) # session.query(User).filter_by(id=user_id).first()
+    print('request::', request)
+    if request.method == 'POST':
+        user = await save_user(request, user_id)
+        return redirect(url_for('edit_user', user_id=user_id))
+    
+    # session.close()
+    return render_template('edit_user.html', user=user)
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")

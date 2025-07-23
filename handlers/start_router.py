@@ -8,6 +8,7 @@ from keyboards.reply_other_kb import *
 from utils.utils import get_content_info, send_message_user
 from create_bot import bot
 from aiogram.utils.chat_action import ChatActionSender
+import json  
 
 
 start_router = Router()
@@ -25,25 +26,14 @@ def call_answer_file(name: str) -> str:
 @start_router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
-    user = None # await cheak_user(tg_id=message.from_user.id,
-                        #   username=message.from_user.username,
-                        #   full_name=message.from_user.full_name)
-    greeting = f"Добро пожаловать, {message.from_user.full_name}! Выбери необходимое действие"
-    # if user is None:
-    #     ans = call_answer_file('start')
-        
-        
-    #     await message.answer(ans, reply_markup=main_register)
-    # else:
-    #     await message.answer(greeting, reply_markup=main_kb())
     ans = call_answer_file('start')    
     await message.answer(ans, reply_markup=main_register())
 
 @start_router.message(F.text == 'Запись на МАСТЕР-КЛАСС')
 async def master_menu(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer(f'Запись на Мастер-класс через личного ассистента - @FestBotAssistant',
-                            reply_markup=main_kb())
+    text = call_answer_file('masterklass')
+    await message.answer(text, reply_markup=main_kb())
         
         
 @start_router.message(F.text == 'Главное меню')
@@ -123,7 +113,12 @@ def call_stations():
     
     with open('./temp_answers/stations_info', 'r', encoding='utf-8') as f:
         data_info = f.readlines()
-        
+    
+    # with open('./temp_answers/stations.json', 'r') as f:  
+    #     j_data = json.load(f.read())  
+    
+    # for el in j_data:
+    #     print("el:::::::::::", el)
     for i, ans in enumerate(data):
         buttons[i] = {'qst':ans, 'answer': data_info[i]}
     
@@ -133,7 +128,6 @@ def call_stations():
 async def start_stations(message: Message, state: FSMContext):
     await state.clear()
     text = call_answer_file('stations')
-    # text = 'Выберете станцию про которую хотите узнать подробнее \n🎡 Станции можно посещать в любом порядке — как душе угодно! \n Участвуй и зарабатывай очки!'
     questions = call_stations()
     
     await message.answer(text, reply_markup=create_qst_inline_kb(questions))
@@ -188,9 +182,10 @@ async def start_table(message: Message, state: FSMContext):
     str_val += "Не нашли себя? Возможно, вы не в топ-15.\n\n"
     
     print('current_user::', current_user)
-    # if current_user != None:
-    #     str_val += f"Личный результат:\n {current_user['member_id']} | {current_user['full_name']} | {current_user['score']} \n\nБаллы можно заработать на станциях квеста!\nТОП - 30 по итогам дня получают ценные подарки!"
-    
+    if current_user != None:
+        str_val += f"Личный результат:\n {current_user['member_id']} | {current_user['full_name']} | {current_user['score']}"
+        str_val += "\n\nБаллы можно заработать на станциях квеста!\nТОП - 15 по итогам дня получают ценные подарки!"
+        
     await message.answer(str_val, reply_markup=main_kb_2())   
 
 
@@ -223,3 +218,6 @@ async def main_menu_process(call: CallbackQuery, state: FSMContext):
     # await call.answer('Вы вернулись в главное меню.')
     await call.message.answer(f"Воспользуйся навигацией внизу экрана",
                               reply_markup=main_kb())
+
+if __name__ == "__main__":
+    call_stations()
