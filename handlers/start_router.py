@@ -125,7 +125,7 @@ def call_stations():
         data_info = f.readlines()
         
     for i, ans in enumerate(data):
-        buttons[i] = {'qst':ans, 'answer':data_info[i]}
+        buttons[i] = {'qst':ans, 'answer': data_info[i]}
     
     return buttons
 
@@ -181,14 +181,15 @@ async def start_table(message: Message, state: FSMContext):
     users = await get_all_users()
     current_user = await get_user_by_id(message.from_user.id)
     # print("users::::::::", users)
-    str_val = "30 лучших участников: \n"
+    str_val = "15 лучших участников: \n"
     for user in users:
         # print("user::::::::", user)
-        str_val += f"{user['full_name']} | {user['member_id']} | {user['score']} \n\n"
-    str_val += "Не нашли себя? Возможно, вы не в топ-30.\n\n"
+        str_val += f"{user['full_name']} | {user['member_id']} | {user['score']}\n"
+    str_val += "Не нашли себя? Возможно, вы не в топ-15.\n\n"
     
-    if user != None:
-        str_val += f"Личный результат:\n {current_user['member_id']} | {current_user['full_name']} | {current_user['score']} \n\nБаллы можно заработать на станциях квеста!\nТОП - 30 по итогам дня получают ценные подарки!"
+    print('current_user::', current_user)
+    # if current_user != None:
+    #     str_val += f"Личный результат:\n {current_user['member_id']} | {current_user['full_name']} | {current_user['score']} \n\nБаллы можно заработать на станциях квеста!\nТОП - 30 по итогам дня получают ценные подарки!"
     
     await message.answer(str_val, reply_markup=main_kb_2())   
 
