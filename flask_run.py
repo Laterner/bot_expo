@@ -19,7 +19,7 @@ async def index():
     admin_id = cookies.get('admin_id')
 
     if request.method == 'POST':
-        member_id = make_response(request.form.get('member_id'))
+        member_id = request.form.get('member_id')
         score = request.form.get('score')
         
         if not member_id or not score:
@@ -51,7 +51,7 @@ async def index():
                             file.write(f"admin {admin_id} send to user {member_id} {score} points" + '\n')
                     except:
                         print('err')
-                        
+
                     message = f'Успешно! Пользователю {member_id} добавлено {score_to_add} очков. Текущий счет: {user.score}'
                     
             except ValueError:
