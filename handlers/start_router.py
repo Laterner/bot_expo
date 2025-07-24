@@ -120,7 +120,7 @@ def call_stations():
     # for el in j_data:
     #     print("el:::::::::::", el)
     for i, ans in enumerate(data):
-        buttons[i] = {'qst':ans, 'answer': data_info[i]}
+        buttons[i] = {'qst':ans, 'answer': data_info[i], "photo": f"images/photo_{i}.png"}
     
     return buttons
 
@@ -147,7 +147,7 @@ async def cmd_start(call: CallbackQuery):
     async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
         # await asyncio.sleep(2)
         # Путь к файлу относительно корня проекта
-        photo_path = "map.png"
+        photo_path = qst_data.get("photo")
         
         # Создаем объект файла
         photo = FSInputFile(photo_path)

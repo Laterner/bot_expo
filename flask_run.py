@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, make_response, session as cookies
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
@@ -16,8 +16,10 @@ engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 async def index():
     message = None
     
+    admin_id = cookies.get('admin_id')
+
     if request.method == 'POST':
-        member_id = request.form.get('member_id')
+        member_id = make_response(request.form.get('member_id'))
         score = request.form.get('score')
         
         if not member_id or not score:
@@ -43,13 +45,27 @@ async def index():
                             user.score += score_to_add
                     
                     session.commit()
+
+                    try:
+                        with open('log_send.txt', 'a') as file: 
+                            file.write(f"admin {admin_id} send to user {member_id} {score} points" + '\n')
+                    except:
+                        print('err')
+                        
                     message = f'Успешно! Пользователю {member_id} добавлено {score_to_add} очков. Текущий счет: {user.score}'
                     
             except ValueError:
                 message = 'Ошибка: member_id и score должны быть числами'
     
-    return render_template('index.html', message=message)
+    return render_template('index.html', message=message, admin_id=admin_id)
 
+@app.route('/set_id/<int:admin_id>', methods=['GET', 'POST'])
+def admin_set_id(admin_id):
+    # res = make_response("Setting a cookie")
+    # res.set_cookie('admin_id', str(admin_id), max_age=60*60*24*365*2)
+    cookies['admin_id'] = admin_id
+
+    return redirect(url_for('index'))
 
 @app.route('/admin')
 def admin_page():
@@ -97,5 +113,6 @@ async def edit_user(user_id):
 
 
 if __name__ == '__main__':
+    app.secret_key = "AAFPRUZ_Du3bYempDzUXsWHCvRm4RTrg8NQ"
     app.run(host="0.0.0.0")
     
