@@ -45,6 +45,10 @@ async def index():
                             user.score += score_to_add
                     
                     session.commit()
+
+                    with open('log_send.txt', 'a') as file: 
+                        file.write(f"admin {admin_id} send to user {member_id} {score} points" + '\n')
+
                     message = f'Успешно! Пользователю {member_id} добавлено {score_to_add} очков. Текущий счет: {user.score}'
                     
             except ValueError:
@@ -57,6 +61,7 @@ def admin_set_id(admin_id):
     # res = make_response("Setting a cookie")
     # res.set_cookie('admin_id', str(admin_id), max_age=60*60*24*365*2)
     cookies['admin_id'] = admin_id
+
     return redirect(url_for('index'))
 
 @app.route('/admin')
