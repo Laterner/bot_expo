@@ -46,9 +46,12 @@ async def index():
                     
                     session.commit()
 
-                    with open('log_send.txt', 'a') as file: 
-                        file.write(f"admin {admin_id} send to user {member_id} {score} points" + '\n')
-
+                    try:
+                        with open('log_send.txt', 'a') as file: 
+                            file.write(f"admin {admin_id} send to user {member_id} {score} points" + '\n')
+                    except:
+                        print('err')
+                        
                     message = f'Успешно! Пользователю {member_id} добавлено {score_to_add} очков. Текущий счет: {user.score}'
                     
             except ValueError:
