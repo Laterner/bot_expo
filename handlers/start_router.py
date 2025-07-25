@@ -62,8 +62,10 @@ async def process_name(message: Message, state: FSMContext):
     user_id = await set_user(tg_id=message.from_user.id,
                           username=message.from_user.username,
                           full_name=name)
-    # print('user::', user)
-    ans = f"{name}, вот мы и познакомились! \n Тебе присвоен уникальный ID {user_id} , запомни его!\nID нужен для зачисления баллов в квесте. \nДавай посмотрим мои возможности. Нажми кнопку \"Главное меню\""
+    if user_id == None:
+        ans = "Вы уже зарегестрированы, нажмите \"Главное меню\""
+    else:
+        ans = f"{name}, вот мы и познакомились! \n Тебе присвоен уникальный ID {user_id} , запомни его!\nID нужен для зачисления баллов в квесте. \nДавай посмотрим мои возможности. Нажми кнопку \"Главное меню\""
     
     await message.answer(ans, reply_markup=main_kb_2())
     await state.clear()  # Очищаем состояние

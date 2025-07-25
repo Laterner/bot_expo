@@ -31,7 +31,8 @@ async def set_user(session, tg_id: int, username: str, full_name: str) -> Option
         else:
             logger.info(f"Пользователь с ID {tg_id} найден!")
             # return user
-            return member_id
+            return None
+        
     except SQLAlchemyError as e:
         logger.error(f"Ошибка при добавлении пользователя: {e}")
         await session.rollback()
