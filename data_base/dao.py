@@ -11,7 +11,7 @@ async def generate_code(session):
     member_id = random.randint(1000, 10000)
     while u := await session.scalar(select(User).filter_by(member_id=member_id)) != None:
         print(member_id)
-        member_id = random.randint(1000, 10000) 
+        member_id = random.randint(1000, 10000)
     return member_id
 
 @connection

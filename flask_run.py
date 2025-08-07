@@ -61,8 +61,6 @@ async def index():
 
 @app.route('/set_id/<int:admin_id>', methods=['GET', 'POST'])
 def admin_set_id(admin_id):
-    # res = make_response("Setting a cookie")
-    # res.set_cookie('admin_id', str(admin_id), max_age=60*60*24*365*2)
     cookies['admin_id'] = admin_id
 
     return redirect(url_for('index'))

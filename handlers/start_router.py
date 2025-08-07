@@ -103,12 +103,10 @@ async def start_map(message: Message, state: FSMContext):
 async def start_legends(message: Message, state: FSMContext):
     await state.clear()
     text = call_answer_file('legends')
-    await message.answer(text,
-                        reply_markup=legend_kb())
+    await message.answer(text, reply_markup=legend_kb())
 
 
 def call_stations():
-    # questions = {1: {'qst': 'Столица Италии?', 'answer': 'Рим'}}
     buttons = {}
     with open('./temp_answers/stations_buttons', 'r', encoding='utf-8') as f:
         data = f.readlines()
@@ -116,11 +114,6 @@ def call_stations():
     with open('./temp_answers/stations_info', 'r', encoding='utf-8') as f:
         data_info = f.readlines()
     
-    # with open('./temp_answers/stations.json', 'r') as f:  
-    #     j_data = json.load(f.read())  
-    
-    # for el in j_data:
-    #     print("el:::::::::::", el)
     for i, ans in enumerate(data):
         buttons[i] = {'qst':ans, 'answer': data_info[i], "photo": f"images/photo_{i}.png"}
     
@@ -147,11 +140,7 @@ async def cmd_start(call: CallbackQuery):
                f'<b>{qst_data.get("answer")}</b>\n\n' \
                f'Выбери другой вопрос:'
     async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
-        # await asyncio.sleep(2)
-        # Путь к файлу относительно корня проекта
         photo_path = qst_data.get("photo")
-        
-        # Создаем объект файла
         photo = FSInputFile(photo_path)
         
         await call.message.answer_photo(
@@ -159,17 +148,12 @@ async def cmd_start(call: CallbackQuery):
             caption=msg_text,
             reply_markup=create_qst_inline_kb(questions)
         )
-        # await call.message.answer(msg_text, reply_markup=create_qst_inline_kb(questions))
-
-
  
 @start_router.message(F.text == 'FAQ')
 async def start_faq(message: Message, state: FSMContext):
     await state.clear()
     ans = call_answer_file('faq')
-    await message.answer(ans,
-                        reply_markup=main_kb_2())   
-
+    await message.answer(ans, reply_markup=main_kb_2())   
 
 @start_router.message(F.text == 'Таблица лидеров')
 async def start_table(message: Message, state: FSMContext):
@@ -190,29 +174,12 @@ async def start_table(message: Message, state: FSMContext):
         
     await message.answer(str_val, reply_markup=main_kb_2())   
 
-
-
-# @start_router.message(F.text == 'DeleteDataBase')
-# async def stop_fsm(message: Message, state: FSMContext):
-#     await state.clear()
-#     # await delete_all_users()
-#     await message.answer(f"Сценарий остановлен. Для выбора действия воспользуйся клавиатурой ниже",
-#                         reply_markup=main_kb())
-
-
 @start_router.message(F.text == 'Квест')
 async def quest_0(message: Message, state: FSMContext):
     await state.clear()
     text = "Узнай больше о развлечении на фестивале! \nВоспользуйся навигацией внизу экрана"
     
     await message.answer(text, reply_markup=quest_kb())
-
-# @start_router.callback_query(F.data == 'stations_info')
-# async def send_more_info_stations(call: CallbackQuery):
-#     # await call.answer('Генерирую случайного пользователя')
-#     ans = "answer"
-#     await call.message.answer(ans)
-
 
 @start_router.callback_query(F.data == 'back_home')
 async def main_menu_process(call: CallbackQuery, state: FSMContext):
